@@ -123,6 +123,8 @@ def get_quiz_insights():
         topic_accuracy_percent = {topic: (data["correct"] / data["total"]) * 100 for topic, data in
                                   topic_accuracy.items()}
         weak_topics = [topic for topic, acc in topic_accuracy_percent.items() if acc < 60]
+        strong_topics = [topic for topic, acc in topic_accuracy_percent.items() if acc > 80]
+
 
         # Generate recommendations
         recommendations = []
@@ -142,12 +144,20 @@ def get_quiz_insights():
             elif speed < 90:
                 recommendations.append("Speed up your responses to improve overall test performance.")
 
+
+        persona = "Balanced Learner"
+        if len(strong_topics) > len(weak_topics):
+            persona = "Conceptual Expert"
+        elif len(weak_topics) > len(strong_topics):
+            persona = "Needs Improvement"
+
         insights = {
             "User Score": int(submission_df["score"].values[0]),
             "Accuracy": str(submission_df["accuracy"].values[0]),
             "Weak Topics": list(set(weak_topics)),
             "Not Attempted Topics": list(set(not_attempted_topics)),
-            "Recommendations": recommendations
+            "Recommendations": recommendations,
+            "Student Persona": persona
         }
         return insights
     return {"error": "No submission data available"}
